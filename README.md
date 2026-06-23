@@ -78,7 +78,7 @@ docker run -d \
 | `OBSIDIAN_PASSWORD` | Yes | Obsidian account password |
 | `OBSIDIAN_MFA` | No | One-time TOTP code for initial login (if your account has 2FA enabled) |
 
-> **Note on MFA**: TOTP codes expire within 30 seconds. If your account has MFA enabled, the container must complete login before the code expires. For a long-running container, consider performing the initial vault setup interactively (see [First-time setup](#first-time-setup)) so that login credentials are cached, and then restart the container without `OBSIDIAN_MFA`.
+> **Note on MFA**: TOTP codes are typically valid for 30 seconds. If your account has MFA enabled, the container must complete login before the code expires. For a long-running container, consider performing the initial vault setup interactively (see [First-time setup](#first-time-setup)) so that login credentials are cached, and then restart the container without `OBSIDIAN_MFA`.
 
 > **Security note**: `OBSIDIAN_EMAIL` and `OBSIDIAN_PASSWORD` are passed as arguments to the `ob login` command, which means they may appear in process listings on the host. This is a limitation of the current `ob` CLI interface. Use Docker secrets or a secrets manager when possible, and ensure the host has appropriate access controls.
 
