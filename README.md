@@ -40,20 +40,13 @@ The sync configuration is stored in `./vault/.obsidian`, so subsequent container
 
 ### With Docker Compose (recommended)
 
-1. Copy the sample compose file and configure it:
+1. Copy the sample compose file:
 
    ```sh
    cp docker-compose.yml my-compose.yml
    ```
 
-2. Create a `.env` file with your credentials:
-
-   ```env
-   OBSIDIAN_EMAIL=your@email.com
-   OBSIDIAN_PASSWORD=yourpassword
-   ```
-
-3. Start the container:
+2. Start the container:
 
    ```sh
    docker compose -f my-compose.yml up -d
@@ -64,23 +57,9 @@ The sync configuration is stored in `./vault/.obsidian`, so subsequent container
 ```sh
 docker run -d \
   --restart unless-stopped \
-  -e OBSIDIAN_EMAIL=your@email.com \
-  -e OBSIDIAN_PASSWORD=yourpassword \
   -v ./vault:/vault \
   ghcr.io/adrianba/obsidian-docker:latest
 ```
-
-## Environment variables
-
-| Variable | Required | Description |
-|---|---|---|
-| `OBSIDIAN_EMAIL` | Yes | Obsidian account email |
-| `OBSIDIAN_PASSWORD` | Yes | Obsidian account password |
-| `OBSIDIAN_MFA` | No | One-time TOTP code for initial login (if your account has 2FA enabled) |
-
-> **Note on MFA**: TOTP codes are typically valid for 30 seconds. If your account has MFA enabled, the container must complete login before the code expires. For a long-running container, consider performing the initial vault setup interactively (see [First-time setup](#first-time-setup)) so that login credentials are cached, and then restart the container without `OBSIDIAN_MFA`.
-
-> **Security note**: `OBSIDIAN_EMAIL` and `OBSIDIAN_PASSWORD` are passed as arguments to the `ob login` command, which means they may appear in process listings on the host. This is a limitation of the current `ob` CLI interface. Use Docker secrets or a secrets manager when possible, and ensure the host has appropriate access controls.
 
 ## Building locally
 
