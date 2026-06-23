@@ -1,0 +1,11 @@
+services:
+  obsidian-sync:
+    image: ghcr.io/adrianba/obsidian-docker:latest
+    restart: unless-stopped
+    environment:
+      - OBSIDIAN_EMAIL=${OBSIDIAN_EMAIL}
+      - OBSIDIAN_PASSWORD=${OBSIDIAN_PASSWORD}
+      # Uncomment if your account has MFA enabled (one-time code for initial login)
+      # - OBSIDIAN_MFA=${OBSIDIAN_MFA}
+    volumes:
+      - ./vault:/vault
