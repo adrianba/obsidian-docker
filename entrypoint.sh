@@ -7,11 +7,11 @@ if [ -z "$OBSIDIAN_EMAIL" ] || [ -z "$OBSIDIAN_PASSWORD" ]; then
 fi
 
 echo "Logging in to Obsidian..."
+set -- --email "$OBSIDIAN_EMAIL" --password "$OBSIDIAN_PASSWORD"
 if [ -n "$OBSIDIAN_MFA" ]; then
-  ob login --email "$OBSIDIAN_EMAIL" --password "$OBSIDIAN_PASSWORD" --mfa "$OBSIDIAN_MFA"
-else
-  ob login --email "$OBSIDIAN_EMAIL" --password "$OBSIDIAN_PASSWORD"
+  set -- "$@" --mfa "$OBSIDIAN_MFA"
 fi
+ob login "$@"
 
 echo "Starting continuous sync..."
 exec ob sync --continuous --path /vault
