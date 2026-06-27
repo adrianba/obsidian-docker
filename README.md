@@ -20,12 +20,19 @@ ghcr.io/adrianba/obsidian-docker:latest
 
 Before running the container, you need to configure the local vault directory for sync. This is a one-time step that stores the sync configuration in the vault's `.obsidian` directory.
 
+The container runs as uid/gid `1000:1000` so that vault files are owned by that user on the host. Create the vault directory and make sure it is owned by `1000:1000` before the first run:
+
+```sh
+mkdir -p vault && sudo chown -R 1000:1000 vault
+```
+
 Run the setup interactively using the published image:
 
 ```sh
 docker run -it --rm \
+  --user 1000:1000 \
   -v ./vault:/vault \
-  -v obsidian-config:/root/.config/obsidian-headless \
+  -v obsidian-config:/config \
   --entrypoint sh \
   ghcr.io/adrianba/obsidian-docker:latest \
   -c "ob login && ob sync-setup --vault 'Your Vault Name' --path /vault"
@@ -35,7 +42,7 @@ This will:
 1. Prompt you to log in to your Obsidian account
 2. Set up the local `/vault` directory for sync with the named remote vault
 
-The sync configuration is stored in `./vault/.obsidian` and the auth token is stored in the `obsidian-config` named volume, so subsequent container runs will use them automatically.
+The sync configuration is stored in `./vault/.obsidian` and the auth token is stored in the `obsidian-config` named volume (mounted at `/config`), so subsequent container runs will use them automatically.
 
 ## Usage
 
@@ -58,8 +65,9 @@ The sync configuration is stored in `./vault/.obsidian` and the auth token is st
 ```sh
 docker run -d \
   --restart unless-stopped \
+  --user 1000:1000 \
   -v ./vault:/vault \
-  -v obsidian-config:/root/.config/obsidian-headless \
+  -v obsidian-config:/config \
   ghcr.io/adrianba/obsidian-docker:latest
 ```
 
@@ -68,6 +76,28 @@ docker run -d \
 ```sh
 docker build -t obsidian-docker .
 ```
+
+## Upgrading from an older image
+
+Earlier versions ran as `root` and stored the auth token in the `obsidian-config`
+volume mounted at `/root/.config/obsidian-headless`. The container now runs as
+`1000:1000` and reads its config from `/config` (via `XDG_CONFIG_HOME`), so the
+old config location is no longer used. To migrate:
+
+- Make sure the host vault directory is owned by `1000:1000`:
+
+  ```sh
+  sudo chown -R 1000:1000 vault
+  ```
+
+- Re-create the auth token in the new location by re-running the
+  [first-time setup](#first-time-setup). A pre-existing `obsidian-config` named
+  volume is owned by `root` and will not be writable by `1000:1000`, so remove it
+  first (`docker volume rm obsidian-config`) and let it be re-created.
+
+  Alternatively, copy the old `auth_token` into the new `/config/obsidian-headless`
+  directory, or supply it directly via the `OBSIDIAN_AUTH_TOKEN` environment
+  variable.
 
 ## GitHub Actions
 

@@ -2,9 +2,10 @@ services:
   obsidian-sync:
     image: ghcr.io/adrianba/obsidian-docker:latest
     restart: unless-stopped
+    user: "1000:1000"
     volumes:
       - ./vault:/vault
-      - obsidian-config:/root/.config/obsidian-headless
+      - obsidian-config:/config
 
 volumes:
   obsidian-config:
