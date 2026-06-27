@@ -16,11 +16,17 @@ RUN chmod +x /entrypoint.sh
 # Pre-create the mount points owned by uid/gid 1000 (the node user). A newly
 # created, empty named volume inherits the ownership of the image directory it
 # is first mounted over, so this lets the container run as 1000:1000.
-RUN mkdir -p /vault /config \
-    && chown 1000:1000 /vault /config
+#
+# The config volume is mounted at $XDG_CONFIG_HOME/obsidian-headless (the exact
+# directory obsidian-headless reads/writes) rather than at $XDG_CONFIG_HOME.
+# This keeps the volume contents aligned with the directory the app uses, so a
+# volume created by an older image (which mounted /root/.config/obsidian-headless
+# directly) continues to work.
+RUN mkdir -p /vault /config/obsidian-headless \
+    && chown 1000:1000 /vault /config /config/obsidian-headless
 
 VOLUME ["/vault"]
-VOLUME ["/config"]
+VOLUME ["/config/obsidian-headless"]
 
 USER 1000:1000
 

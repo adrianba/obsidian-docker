@@ -32,7 +32,7 @@ Run the setup interactively using the published image:
 docker run -it --rm \
   --user 1000:1000 \
   -v ./vault:/vault \
-  -v obsidian-config:/config \
+  -v obsidian-config:/config/obsidian-headless \
   --entrypoint sh \
   ghcr.io/adrianba/obsidian-docker:latest \
   -c "ob login && ob sync-setup --vault 'Your Vault Name' --path /vault"
@@ -42,7 +42,7 @@ This will:
 1. Prompt you to log in to your Obsidian account
 2. Set up the local `/vault` directory for sync with the named remote vault
 
-The sync configuration is stored in `./vault/.obsidian` and the auth token is stored in the `obsidian-config` named volume (mounted at `/config`), so subsequent container runs will use them automatically.
+The sync configuration is stored in `./vault/.obsidian` and the auth token is stored in the `obsidian-config` named volume (mounted at `/config/obsidian-headless`), so subsequent container runs will use them automatically.
 
 ## Usage
 
@@ -67,7 +67,7 @@ docker run -d \
   --restart unless-stopped \
   --user 1000:1000 \
   -v ./vault:/vault \
-  -v obsidian-config:/config \
+  -v obsidian-config:/config/obsidian-headless \
   ghcr.io/adrianba/obsidian-docker:latest
 ```
 
@@ -81,8 +81,10 @@ docker build -t obsidian-docker .
 
 Earlier versions ran as `root` and stored the auth token in the `obsidian-config`
 volume mounted at `/root/.config/obsidian-headless`. The container now runs as
-`1000:1000` and reads its config from `/config` (via `XDG_CONFIG_HOME`), so the
-old config location is no longer used. To migrate:
+`1000:1000` and reads its config from `/config/obsidian-headless` (via
+`XDG_CONFIG_HOME=/config`). The volume is mounted at `/config/obsidian-headless`
+— the exact directory obsidian-headless uses — so the contents of an existing
+`obsidian-config` volume line up with the new location. To migrate:
 
 - Make sure the host vault directory is owned by `1000:1000`:
 
@@ -90,14 +92,17 @@ old config location is no longer used. To migrate:
   sudo chown -R 1000:1000 vault
   ```
 
-- Re-create the auth token in the new location by re-running the
-  [first-time setup](#first-time-setup). A pre-existing `obsidian-config` named
-  volume is owned by `root` and will not be writable by `1000:1000`, so remove it
-  first (`docker volume rm obsidian-config`) and let it be re-created.
+- A pre-existing `obsidian-config` named volume was written while the container
+  ran as `root`, so its files are owned by `root` and will not be writable by
+  `1000:1000`. Fix the ownership of the volume contents, for example:
 
-  Alternatively, copy the old `auth_token` into the new `/config/obsidian-headless`
-  directory, or supply it directly via the `OBSIDIAN_AUTH_TOKEN` environment
-  variable.
+  ```sh
+  docker run --rm -v obsidian-config:/data alpine chown -R 1000:1000 /data
+  ```
+
+  Alternatively, remove the old volume (`docker volume rm obsidian-config`) and
+  re-create the auth token by re-running the [first-time setup](#first-time-setup),
+  or supply the token directly via the `OBSIDIAN_AUTH_TOKEN` environment variable.
 
 ## GitHub Actions
 
