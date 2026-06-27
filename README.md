@@ -25,6 +25,7 @@ Run the setup interactively using the published image:
 ```sh
 docker run -it --rm \
   -v ./vault:/vault \
+  -v obsidian-config:/root/.config/obsidian-headless \
   --entrypoint sh \
   ghcr.io/adrianba/obsidian-docker:latest \
   -c "ob login && ob sync-setup --vault 'Your Vault Name' --path /vault"
@@ -34,7 +35,7 @@ This will:
 1. Prompt you to log in to your Obsidian account
 2. Set up the local `/vault` directory for sync with the named remote vault
 
-The sync configuration is stored in `./vault/.obsidian`, so subsequent container runs will use it automatically.
+The sync configuration is stored in `./vault/.obsidian` and the auth token is stored in the `obsidian-config` named volume, so subsequent container runs will use them automatically.
 
 ## Usage
 
@@ -58,6 +59,7 @@ The sync configuration is stored in `./vault/.obsidian`, so subsequent container
 docker run -d \
   --restart unless-stopped \
   -v ./vault:/vault \
+  -v obsidian-config:/root/.config/obsidian-headless \
   ghcr.io/adrianba/obsidian-docker:latest
 ```
 

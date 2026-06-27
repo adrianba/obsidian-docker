@@ -4,3 +4,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./vault:/vault
+      - obsidian-config:/root/.config/obsidian-headless
+
+volumes:
+  obsidian-config:

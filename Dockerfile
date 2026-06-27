@@ -8,5 +8,6 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 VOLUME ["/vault"]
+VOLUME ["/root/.config/obsidian-headless"]
 
 ENTRYPOINT ["/entrypoint.sh"]
