@@ -107,3 +107,6 @@ volume mounted at `/root/.config/obsidian-headless`. The container now runs as
 ## GitHub Actions
 
 The included workflow (`.github/workflows/docker-publish.yml`) automatically builds and publishes the Docker image to `ghcr.io` on every commit to the `main` branch. The image is tagged with both `latest` and the commit SHA (`sha-<sha>`).
+
+Updated: 25 Oct 2026
+
